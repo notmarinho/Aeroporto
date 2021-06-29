@@ -20,7 +20,8 @@ module.exports = {
     },
 
     async atualizar(req,res){
-        const {numero,data_,numero_assento_disponivel, horario_partida, horario_chegada} = req.body
+        const {numero} = req.params
+        const {data_,numero_assento_disponivel, horario_partida, horario_chegada} = req.body
 
         const instancia = await Instancia.update({data_,numero_assento_disponivel, horario_partida, horario_chegada}, {where: {numero_voo: numero}})
 

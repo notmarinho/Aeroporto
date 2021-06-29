@@ -23,7 +23,8 @@ module.exports = {
 
     async atualizar(req,res){
 
-        const {numero,codigo_tarifa,quantidade,restricoes} = req.body
+        const {numero} = req.params
+        const {codigo_tarifa,quantidade,restricoes} = req.body
 
         const tarifa = await Tarifa.update({codigo_tarifa,quantidade,restricoes}, {where: {numero_voo: numero}})
 

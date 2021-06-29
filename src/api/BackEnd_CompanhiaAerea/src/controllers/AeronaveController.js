@@ -21,8 +21,8 @@ module.exports = {
     },
 
     async atualizar(req,res){
-        
-        const {tipo,codigo_aeronave,numero_total_assentos} = req.body
+        const {tipo} = req.params
+        const {codigo_aeronave,numero_total_assentos} = req.body
 
         const aero = await Aeronave.update({codigo_aeronave,numero_total_assentos}, {where: {tipo_aeronave: tipo}})
 

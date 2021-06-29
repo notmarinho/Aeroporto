@@ -22,7 +22,9 @@ module.exports = {
     },
 
     async atualizar(req,res){
-        const {numero,numero_trecho, horario_partida_previsto, horario_chegada_previsto} = req.body
+
+        const {numero} = req.params
+        const {numero_trecho, horario_partida_previsto, horario_chegada_previsto} = req.body
 
         const trecho = await Trecho_voo.update({numero_trecho, horario_partida_previsto, horario_chegada_previsto}, {where: {numero_voo: numero}})
 

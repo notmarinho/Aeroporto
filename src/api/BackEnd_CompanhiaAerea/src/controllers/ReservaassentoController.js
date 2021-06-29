@@ -18,7 +18,8 @@ module.exports = {
 
     async atualizar(req,res){
         
-        const {numero,numero_assento,nome_cliente,telefone_cliente} = req.body
+        const {numero} = req.params
+        const {numero_assento,nome_cliente,telefone_cliente} = req.body
 
         const reserva = await Reserva.update({numero_assento,nome_cliente,telefone_cliente}, {where: {numero_voo: numero}})
 

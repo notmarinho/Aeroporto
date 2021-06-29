@@ -19,7 +19,8 @@ module.exports = {
 
     async atualizar(req,res){
        
-        const {numero,numero_voo,companhia_aerea, dias_da_semana} = req.body
+        const {numero} = req.params
+        const {numero_voo,companhia_aerea, dias_da_semana} = req.body
 
         const voo = await Voo.update({numero_voo, companhia_aerea, dias_da_semana}, {where: {numero_voo: numero}})
 
