@@ -3,9 +3,10 @@ import {
   View,
   StyleSheet,
   Text,
-  ScrollView
+  Dimensions
 } from 'react-native';
 
+const { height } = Dimensions.get('window')
 
 //LB
 import { Input, Button } from 'react-native-elements';
@@ -31,23 +32,23 @@ const Create = ({ navigation, route }) => {
   const handleComponent = () => {
     switch (api_name) {
       case 'aeroporto':
-        return <Airport api_name={api_name} editObj={editObj} />
+        return <Airport api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'voo':
-        return <Voo api_name={api_name} editObj={editObj} />
+        return <Voo api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'tipo':
-        return <TipoAeronave api_name={api_name} editObj={editObj} />
+        return <TipoAeronave api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'aero':
-        return <Aeronave api_name={api_name} editObj={editObj} />
+        return <Aeronave api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'instancia':
-        return <Instancia api_name={api_name} editObj={editObj} />
+        return <Instancia api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'trecho':
-        return <TrechoVoo api_name={api_name} editObj={editObj} />
+        return <TrechoVoo api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'pousar':
-        return <Pousar api_name={api_name} editObj={editObj} />
+        return <Pousar api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'tarifa':
-        return <Tarifa api_name={api_name} editObj={editObj} />
+        return <Tarifa api_name={api_name} editObj={editObj} navigation={navigation} />
       case 'reserva':
-        return <Reserva api_name={api_name} editObj={editObj} />
+        return <Reserva api_name={api_name} editObj={editObj} navigation={navigation} />
     }
   }
 
@@ -55,6 +56,7 @@ const Create = ({ navigation, route }) => {
     <View style={styles.container}>
       <Header
         title={`Criar ${item.label}`}
+        showTitle={item.label == 'Reserva' ? false : true}
         onBackButtonPress={() => navigation.goBack()}
       />
       {handleComponent()}
@@ -64,9 +66,10 @@ const Create = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#fff',
     flex: 1,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    // paddingVertical: 15,
+    // paddingHorizontal: 15,
     justifyContent: 'space-between'
   }
 });

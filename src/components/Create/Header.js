@@ -4,7 +4,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { fonts } from '../../commounStyles'
 
-const Header = ({ title, onBackButtonPress }) => {
+const Header = ({ title, onBackButtonPress, showTitle }) => {
     return (
         <View style={styles.container}>
             <TouchableOpacity
@@ -14,16 +14,19 @@ const Header = ({ title, onBackButtonPress }) => {
                     size={30}
                     name="arrow-left" />
             </TouchableOpacity>
-            <Text style={styles.title}>
-                {title ? title : 'Header Title'}
-            </Text>
+            {showTitle &&
+                <Text style={styles.title}>
+                    {title ? title : 'Header Title'}
+                </Text>
+            }
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        padding: 15,
     },
     btnBack: {
         width: 45,

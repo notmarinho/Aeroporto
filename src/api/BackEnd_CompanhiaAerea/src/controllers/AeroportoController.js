@@ -15,7 +15,6 @@ module.exports = {
     },
 
     async atualizar(req, res) {
-        console.log("BODY REQUEST\n ", req.body)
         const { codigo_aeroporto, nome, cidade, estado } = req.body
         const { codigo } = req.params
         const aeroporto = await Aeroporto.update({ codigo_aeroporto, nome, cidade, estado }, { where: { codigo_aeroporto: codigo } })

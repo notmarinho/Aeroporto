@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import {
-    Input,
-    Button
-} from 'react-native-elements';
-
+//LB
+import { Input, Button } from 'react-native-elements';
+import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+
+//CP
 import apiService from '../../api/api'
 
 const defaultObject = {
@@ -15,34 +15,58 @@ const defaultObject = {
     cidade: '',
 }
 
-const Airport = ({ api_name, editObj }) => {
-
+const Airport = ({ api_name, editObj, navigation }) => {
     const [loading, setLoading] = useState(false)
     const [originalState, setOriginalState] = useState(editObj);
     const [info, setInfo] = useState(editObj ? editObj : defaultObject)
     const [editedData, setEditedData] = useState({})
 
     const handleRegister = async () => {
-        setLoading(true)
         await apiService.post(`/${api_name}`, info)
-            .then((response) => console.log(response))
-            .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
+            .then(resetState)
+            .then(goBack)
+            .then(callToastMessage)
+    }
+
+    const goBack = () => {
+        navigation.goBack()
     }
 
     const handleUpdate = async () => {
-
-        await apiService.put(`/${api_name}/${originalState.codigo_aeroporto}`, editedData)
+        await apiService.put(`${api_name}/${originalState.codigo_aeroporto}`, editedData)
             .then((response) => console.log(response))
-            .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
+            .then(goBack)
+            .catch(handleError)
+    }
+
+    const resetState = () => setInfo(defaultObject)
+
+    const toggleLoading = () => setLoading(!loading)
+
+    const handleError = (error) => {
+        Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: error,
+            // visibilityTime: 4000,
+            autoHide: true,
+        });
+    }
+
+    const callToastMessage = () => {
+        Toast.show({
+            type: 'success',
+            text1: 'Sucesso',
+            text2: `Aeroporto criado com sucesso!`,
+            visibilityTime: 2000,
+            autoHide: true,
+        });
     }
 
     return (
         <View style={styles.container}>
             <View>
                 <Input
-                    // disabled={editObj ? true : false}
                     label='Código Aeroporto'
                     keyboardType='number-pad'
                     value={info.codigo_aeroporto}
@@ -81,7 +105,7 @@ const Airport = ({ api_name, editObj }) => {
                         style={{ marginLeft: 10 }}
                     />
                 }
-                title="Registrar"
+                title={editObj ? "Atualizar  " : "Registrar  "}
             />
         </View>
     )
@@ -90,7 +114,8 @@ const Airport = ({ api_name, editObj }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: 15
     }
 });
 

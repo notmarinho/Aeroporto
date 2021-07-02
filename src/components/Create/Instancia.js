@@ -2,15 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 
 //LB
-import {
-    Input,
-    Button,
-    Text,
-} from 'react-native-elements';
-
-//LB
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Input, Button, } from 'react-native-elements';
 import { lightFormat } from 'date-fns'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 
 //CP
 import apiService from '../../api/api'
@@ -30,7 +25,7 @@ const defaultObject = {
     horario_chegada: lightFormat(new Date(), 'dd/MM/yyyy'),
 };
 
-const Instancia = ({ api_name, editObj }) => {
+const Instancia = ({ api_name, editObj, navigation }) => {
     useEffect(() => {
         getAeroportos()
         getVoos()
@@ -40,24 +35,28 @@ const Instancia = ({ api_name, editObj }) => {
 
     const [loading, setLoading] = useState(false);
     const [info, setInfo] = useState(editObj ? editObj : defaultObject);
-    const [showClocks, setShowClocks] = useState({ chegada: false, partida: false });
+    const [editedData, setEditedData] = useState({});
+    const [originalState, setOriginalState] = useState(editObj);
     const [aeroportos, setAeroportos] = useState([])
     const [aeronaves, setAeronaves] = useState([])
-    const [techos, setTrechos] = useState([])
+    const [trechos, setTrechos] = useState([])
     const [voos, setVoos] = useState([])
 
     const handleRegister = async () => {
-        setLoading(true)
-        console.log('DATA SEND\n', info);
-        await apiService.post(`/${api_name}`, info)
-            .then((response) => console.log(response))
+        await apiService.post(api_name, info)
+            .then(callToastMessage)
+            .then(goBack)
             .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
+    }
+
+    const goBack = () => {
+        navigation.goBack()
     }
 
     const handleUpdate = async () => {
-        await apiService.put(`/${api_name}`, info)
+        await apiService.put(`/${api_name}/${originalState.numero_voo}`, editedData)
             .then((response) => console.log(response))
+            .then(goBack)
             .catch((error) => console.error(error))
             .finally(() => setLoading(false))
     }
@@ -86,87 +85,88 @@ const Instancia = ({ api_name, editObj }) => {
             .catch((error) => console.error(error))
     }
 
+    const callToastMessage = () => {
+        Toast.show({
+            type: 'success',
+            text1: 'Sucesso',
+            text2: `Instânica criada com sucesso!`,
+            visibilityTime: 2000,
+            autoHide: true,
+        });
+    }
+
     return (
-        <ScrollView>
-            <Picker
-                field='numero_trecho'
-                showLabel
-                label='Número do Trecho'
-                data={voos}
-                returnItem={(item) => setInfo({ ...info, numero_trecho: item.numero_voo })}
-            />
-            <Picker
-                field='companhia_aerea'
-                showLabel
-                label='Número do Voo'
-                data={voos}
-                returnItem={(item) => setInfo({ ...info, numero_voo: item.numero_voo })}
-            />
-            <Picker
-                field='codigo_aeronave'
-                showLabel
-                label='Código da Aeronave'
-                data={aeronaves}
-                returnItem={(item) => setInfo({ ...info, codigo_aeronave: item.numero_voo })}
-            />
-            <Input
-                label='Assentos Disponíveis'
-                placeholder='Ex: 25'
-                keyboardType='number-pad'
-                value={info.numero_assento_disponivel}
-                onChangeText={numero_assento_disponivel => setInfo({ ...info, numero_assento_disponivel })}
-            />
-            <DateTimePicker
-                label='Data'
-                mode='date'
-                returnDate={(data_) => setInfo({ ...info, data_ })} />
-            <View style={styles.airportContainer}>
-                <View style={styles.boxContainer}>
-                    <Text style={styles.boxTitle}>Partida</Text>
-                    <Picker
-                        // icon={'airport'}
-                        field='nome'
-                        label='Aeroporto'
-                        data={aeroportos}
-                        returnItem={(item) => setInfo({ ...info, codigo_aeroporto_partida: item.codigo_aeroporto })} />
-                </View>
-                <View style={styles.hourContainer}>
-                    <DateTimePicker
-                        mode='date'
-                        returnDate={(horario_partida_previsto) => setInfo({ ...info, horario_partida_previsto })} />
-                </View>
-            </View>
-            <View style={{ ...styles.airportContainer, marginTop: 15 }}>
-                <View style={styles.boxContainer}>
-                    <Text style={styles.boxTitle}>Chegada</Text>
-                    <Picker
-                        field='nome'
-                        icon={'airport'}
-                        label='Aeroporto'
-                        data={aeroportos}
-                        returnItem={(item) => setInfo({ ...info, codigo_aeroporto_chegada: item.codigo_aeroporto })} />
-                </View>
-                <View style={styles.hourContainer}>
-                    <DateTimePicker
-                        mode='date'
-                        returnDate={(horario_chegada_previsto) => setInfo({ ...info, horario_chegada_previsto })} />
-                </View>
+        <View style={styles.container}>
+            <View>
+                <Picker
+                    field='numero_trecho'
+                    showLabel
+                    label='Número do Trecho'
+                    data={trechos}
+                    returnItem={({
+                        numero_trecho,
+                        codigo_aeroporto_chegada,
+                        codigo_aeroporto_partida,
+                        horario_chegada_previsto,
+                        horario_partida_previsto,
+                        numero_voo,
+                    }) => {
+                        setEditedData({
+                            ...editedData,
+                            numero_trecho,
+                            numero_voo,
+                            horario_partida: horario_partida_previsto,
+                            horario_chegada: horario_chegada_previsto,
+                            codigo_aeroporto_chegada,
+                            codigo_aeroporto_partida
+                        }),
+                            setInfo({
+                                ...info,
+                                numero_trecho,
+                                numero_voo,
+                                horario_partida: horario_partida_previsto,
+                                horario_chegada: horario_chegada_previsto,
+                                codigo_aeroporto_chegada,
+                                codigo_aeroporto_partida
+                            })
+                    }}
+                />
+                <Picker
+                    field='codigo_aeronave'
+                    showLabel
+                    label='Código da Aeronave'
+                    data={aeronaves}
+                    returnItem={({ codigo_aeronave }) => { setEditedData({ ...editedData, codigo_aeronave }), setInfo({ ...info, codigo_aeronave }) }}
+                />
+                <Input
+                    label='Assentos Disponíveis'
+                    placeholder='Ex: 25'
+                    keyboardType='number-pad'
+                    value={info.numero_assento_disponivel}
+                    onChangeText={numero_assento_disponivel => { setEditedData({ ...editedData, numero_assento_disponivel }), setInfo({ ...info, numero_assento_disponivel }) }}
+                />
+                <DateTimePicker
+                    initialDate={editObj ? editObj.data_ : null}
+                    label='Data'
+                    mode='date'
+                    returnDate={(data_) => { setEditedData({ ...editedData, data_ }), setInfo({ ...info, data_ }) }} />
             </View>
             <Button
                 buttonStyle={{ height: 48, borderRadius: 5 }}
                 iconRight
-                onPress={handleRegister}
+                onPress={editObj ? handleUpdate : handleRegister}
                 loading={loading}
-                title="Registrar"
+                title={editObj ? "Atualizar " : "Registrar "}
             />
-        </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: 15
     },
     airportContainer: {
         flexDirection: 'row',

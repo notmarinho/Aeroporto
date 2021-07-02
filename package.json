@@ -22,6 +22,7 @@
     "body-parser": "^1.19.0",
     "date-fns": "^2.22.1",
     "express": "^4.17.1",
+    "lodash": "^4.17.21",
     "lottie-react-native": "^4.0.2",
     "mysql": "^2.18.1",
     "react": "17.0.1",
@@ -30,10 +31,13 @@
     "react-native-axios": "^0.17.1",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "^1.10.3",
-    "react-native-reanimated": "^2.2.0",
+    "react-native-keyboard-listener": "^1.1.0",
+    "react-native-reanimated": "^2.0.0",
     "react-native-safe-area-context": "^3.2.0",
     "react-native-screens": "^3.4.0",
-    "react-native-vector-icons": "^8.1.0"
+    "react-native-toast-message": "^1.4.9",
+    "react-native-vector-icons": "^8.1.0",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

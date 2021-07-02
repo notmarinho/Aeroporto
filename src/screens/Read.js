@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     StyleSheet,
@@ -10,44 +10,21 @@ import {
     Alert
 } from 'react-native';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
-import apiService from '../api/api'
+import { useFocusEffect } from '@react-navigation/native';
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import apiService from '../api/api'
 import { colors, fonts } from '../commounStyles';
 
-const CardComponent = ({ objToEdit, deleteItem, navigation, tipoObj }) => {
-    const handleNavigation = () => {
-        navigation.navigate('Create', { item: tipoObj, editObj: objToEdit })
-    }
+import Aeroporto from '../components/Cards/Aeroporto';
+import Voo from '../components/Cards/Voo';
+import Aeronave from '../components/Cards/Aeronave';
+import Instancia from '../components/Cards/Instancia';
+import Trecho from '../components/Cards/Trecho';
+import Tarifa from '../components/Cards/Tarifa';
+import Tipo from '../components/Cards/Tipo';
+import Pousar from '../components/Cards/Pousar';
+import Reserva from '../components/Cards/Reserva';
 
-    return (
-        <View style={styles.cardContainer}>
-            <View style={styles.infoContainer}>
-                <Text>Aeroporto: {objToEdit.nome}</Text>
-                <Text>Cidade: {objToEdit.cidade}</Text>
-                <Text>Estado: {objToEdit.estado}</Text>
-                <Text>Codigo: {objToEdit.codigo_aeroporto}</Text>
-            </View>
-            <View style={styles.btnsContainer}>
-                <TouchableOpacity style={styles.buttonStyle} onPress={() => deleteItem(objToEdit)}>
-                    <Icon
-                        name='delete-outline'
-                        size={25}
-                        color='red'
-                    />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonStyle} onPress={handleNavigation}>
-                    <Icon
-                        name='pencil-outline'
-                        size={25}
-                        color='blue'
-                    />
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
-}
 
 const EmptyComponent = () => {
     return (
@@ -68,53 +45,49 @@ const Read = ({ route, navigation }) => {
     const { api_name } = item
     const [data, setData] = useState([])
 
-    useEffect(() => getItems(), [])
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            getItems()
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     const getItems = async () => {
         await apiService.get(`/${api_name}`)
-            .then(({ data }) => {
-                console.log(`Called API: ${api_name}\n `);
-                console.log('DATA: ', data);
-                setData(data)
-            })
+            .then(({ data }) => setData(data))
             .catch((error) => console.error(error))
     }
 
     const deleteItem = async (item) => {
-        console.log('ITEM A SER DELETADO\n', item);
-        console.log('API: ', api_name)
+        const { codigo_aeroporto, tipo_aeronave, numero, numero_voo, codigo, numero_trecho } = item;
+        let config = { data: {} }
         switch (api_name) {
             case 'aeroporto':
-                console.log({ codigo_aeroporto: "006854" })
-                await apiService.delete(`/aeroporto`, {}, { data: { codigo_aeroporto: item.codigo_aeroporto } })
-                    .then(res => console.log(res))
-                    .catch(e => console.error(e))
+                config = { data: { codigo_aeroporto } }
                 break
             case 'voo':
-                await apiService.delete(api_name, { numero: item.numero }).then(res => console.log(res));
-                break
-            case 'tipo':
-                await apiService.delete(api_name, { tipo: item.tipo }).then(res => console.log(res));
+                config = { data: { numero_voo } }
                 break
             case 'aero':
-                await apiService.delete(api_name, { tipo: item.tipo }).then(res => console.log(res));
+                config = { data: { tipo: tipo_aeronave } }
                 break
             case 'instancia':
-                await apiService.delete(api_name, { numero: item.numero }).then(res => console.log(res));
+                config = { data: { numero: numero_voo } }
                 break
             case 'trecho':
-                await apiService.delete(api_name, { codigo: item.codigo }).then(res => console.log(res));
-                break
-            case 'pousar':
-                await apiService.delete(api_name, { codigo: item.codigo }).then(res => console.log(res));
+                config = { data: { numero } }
                 break
             case 'tarifa':
-                await apiService.delete(api_name, { numero: item.numero }).then(res => console.log(res));
+                config = { data: { numero } }
                 break
             case 'reserva':
-                await apiService.delete(api_name, { numero: item.numero }).then(res => console.log(res));
+                config = { data: { numero: numero_voo } }
+                break
+            case 'pousar':
+                config = { data: { codigo } }
                 break
         }
+        await apiService.delete(api_name, {}, config).then(getItems);
     }
 
     const handleDelete = (item) => {
@@ -132,19 +105,40 @@ const Read = ({ route, navigation }) => {
         );
     }
 
+    console.log(data);
+
+    const cardSelector = ({ item: objToEdit }) => {
+        console.log('API NAME: ', api_name);
+        switch (api_name) {
+            case 'aeroporto':
+                return <Aeroporto objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'voo':
+                return <Voo objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'aero':
+                return <Aeronave objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'instancia':
+                return <Instancia objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'trecho':
+                return <Trecho objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'tarifa':
+                return <Tarifa objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'tipo':
+                return <Tipo objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'pousar':
+                return <Pousar objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+            case 'reserva':
+                return <Reserva objToEdit={objToEdit} deleteItem={handleDelete} tipoObj={item} navigation={navigation} />
+        }
+    }
+
     return (
         <View style={styles.container}>
             <FlatList
                 ListEmptyComponent={<EmptyComponent />}
-                contentContainerStyle={{ alignItems: 'center', paddinVertical: 30 }}
+                contentContainerStyle={{ flex: 1, alignItems: 'center', paddingVertical: 50, }}
                 data={data}
                 keyExtractor={(_, idx) => idx}
-                renderItem={({ item: objToEdit }) =>
-                    <CardComponent
-                        objToEdit={objToEdit}
-                        deleteItem={handleDelete}
-                        tipoObj={item}
-                        navigation={navigation} />} />
+                renderItem={cardSelector} />
         </View>
     )
 }
@@ -154,28 +148,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
     },
-    cardContainer: {
-        flexDirection: 'row',
-        width: SCREEN_WIDTH * 0.9,
-        height: 100,
-        backgroundColor: 'lightgray',
-        borderRadius: 5,
-        marginVertical: 5,
-        padding: 10,
-        paddingHorizontal: 15,
-    },
-    infoContainer: {
-        flex: 2
-    },
-    btnsContainer: {
-        flex: 1,
-        flexDirection: 'row',
-    },
-    buttonStyle: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+
     emptyContainer: {
         marginTop: 100,
         width: '100%',

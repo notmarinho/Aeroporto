@@ -10,7 +10,14 @@ module.exports = {
 
     async create(req,res){
         
-        const {numero_assento,nome_cliente,telefone_cliente,numero_voo,numero_trecho,data_} = req.body
+        const {
+            nome_cliente,
+            telefone_cliente,
+            numero_voo,
+            numero_trecho,
+            numero_assento,
+            data_
+        } = req.body
 
         const reserva = await Reserva.create({numero_voo,numero_trecho,data_,numero_assento,nome_cliente,telefone_cliente})
         return res.json(reserva)

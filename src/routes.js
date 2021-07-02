@@ -8,6 +8,7 @@ import HomeScreen from './screens/Home'
 import CreateScreen from './screens/Create'
 import ChoseOptionsScreen from './screens/ChoseOption';
 import ReadScreen from './screens/Read'
+import SuccessScreen from './screens/Success'
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
                 <Stack.Screen name="Create" component={CreateScreen} />
                 <Stack.Screen name="ChoseOption" component={ChoseOptionsScreen} />
                 <Stack.Screen name="Read" component={ReadScreen} />
+                <Stack.Screen name="Success" component={SuccessScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -9,19 +9,19 @@ import { fonts } from '../commounStyles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 
-const Estatisticas = () => {
+const Estatisticas = ({aeroportos, avioes, voos}) => {
     return (
         <View style={styles.container}>
             <View style={styles.contentContainer}>
-                <Text style={styles.value}>0</Text>
+                <Text style={styles.value}>{avioes}</Text>
                 <Text style={styles.label}>AVIÕES</Text>
             </View>
             <View style={styles.contentContainer}>
-                <Text style={styles.value}>0</Text>
+                <Text style={styles.value}>{aeroportos}</Text>
                 <Text style={styles.label}>AEROPORTOS</Text>
             </View>
             <View style={styles.contentContainer}>
-                <Text style={styles.value}>0</Text>
+                <Text style={styles.value}>{voos}</Text>
                 <Text style={styles.label}>VOOS</Text>
             </View>
         </View>

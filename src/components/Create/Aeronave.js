@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import {
-    Input,
-    Button
-} from 'react-native-elements';
-
 //LB
+import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Toast from 'react-native-toast-message';
 
 //CP
 import apiService from '../../api/api';
@@ -19,33 +16,47 @@ const defaultObject = {
     tipo_aeronave: '',
 }
 
-const Aeronave = ({ api_name, editObj }) => {
+const Aeronave = ({ api_name, editObj, navigation }) => {
     useEffect(() => getTiposAeronave(), [])
     const [loading, setLoading] = useState(false);
+    const [originalState, setOriginalState] = useState(editObj);
     const [info, setInfo] = useState(editObj ? editObj : defaultObject)
     const [tiposAeronaves, setTiposAeronaves] = useState([])
+    const [editedData, setEditedData] = useState({})
 
     const handleRegister = async () => {
-        setLoading(true)
-        console.log(info);
-        await apiService.post(`/${api_name}`, info)
-            .then((response) => console.log(response))
-            .then((response => console.log(response)))
+        await apiService.post(api_name, info)
+            .then(callToastMessage)
+            .then(goBack)
             .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
+    }
+
+    const goBack = () => {
+        navigation.goBack()
     }
 
     const handleUpdate = async () => {
-        await apiService.put(`/${api_name}`, info)
-            .then((response) => console.log(response))
+        console.log('ESTADO ORIGINAL, ', originalState);
+        
+        await apiService.put(`${api_name}/${originalState.tipo_aeronave}`, editedData)
+            .then(goBack)
             .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
     }
 
     const getTiposAeronave = async () => {
         await apiService.get(`/tipo`)
             .then(({ data }) => setTiposAeronaves(data))
             .catch((error) => console.error(error))
+    }
+
+    const callToastMessage = () => {
+        Toast.show({
+            type: 'success',
+            text1: 'Sucesso',
+            text2: `Aeronave criada com sucesso!`,
+            visibilityTime: 2000,
+            autoHide: true,
+        });
     }
 
     return (
@@ -55,21 +66,21 @@ const Aeronave = ({ api_name, editObj }) => {
                     label='Código da Aeronave'
                     keyboardType='number-pad'
                     value={info.codigo_aeronave}
-                    onChangeText={codigo_aeronave => setInfo({ ...info, codigo_aeronave })}
+                    onChangeText={codigo_aeronave => { setEditedData({ ...editedData, codigo_aeronave }), setInfo({ ...info, codigo_aeronave }) }}
                 />
                 <Input
                     label='Total de Assentos'
                     placeholder='Ex: 150'
                     keyboardType='number-pad'
                     value={info.numero_total_assentos}
-                    onChangeText={numero_total_assentos => setInfo({ ...info, numero_total_assentos })}
+                    onChangeText={numero_total_assentos => { setEditedData({ ...editedData, numero_total_assentos }), setInfo({ ...info, numero_total_assentos }) }}
                 />
                 <Picker
                     label='Tipo da Aeronave'
                     showLabel
                     field='nome_tipo_aeronave'
                     data={tiposAeronaves}
-                    returnItem={(item) => setInfo({ ...info, tipo_aeronave: item.nome_tipo_aeronave })}
+                    returnItem={(item) => { setEditedData({ ...editedData, tipo_aeronave: item.nome_tipo_aeronave }), setInfo({ ...info, tipo_aeronave: item.nome_tipo_aeronave }) }}
                 />
             </View>
             <Button
@@ -85,7 +96,7 @@ const Aeronave = ({ api_name, editObj }) => {
                         style={{ marginLeft: 10 }}
                     />
                 }
-                title="Registrar"
+                title={editObj ? "Atualizar  " : "Registrar  "}
             />
         </View>
     )
@@ -94,7 +105,8 @@ const Aeronave = ({ api_name, editObj }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: 15
     }
 });
 

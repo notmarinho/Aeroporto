@@ -34,8 +34,8 @@ const ButtonHome = ({ item, navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        width: SCREEN_WIDTH * 0.8 / 3,
-        height: SCREEN_WIDTH * 0.8 / 3,
+        width: SCREEN_WIDTH * 0.81 / 3,
+        height: SCREEN_WIDTH * 0.81 / 3,
         margin: 2.5,
         alignItems: 'center',
         justifyContent: 'center',

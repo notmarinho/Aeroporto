@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 //LB
-import { lightFormat } from 'date-fns'
+import { lightFormat, parse } from 'date-fns'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -20,21 +20,26 @@ const DatePicker = ({
     returnDateTime,
     mode,
     label,
+    initialDate,
 }) => {
+    useEffect(() => {
+        if (initialDate) {
+            const date = parse(initialDate, 'dd/MM/yyyy', new Date()); 
+            setDate(date)
+        }
+    }, [])
+
     const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
     const onChange = (event, selectedDate) => {
-        console.log('SELECTED DATE ', selectedDate);
         const currentDate = selectedDate || date;
         setShow(Platform.OS === 'ios');
         returnDate(lightFormat(currentDate, 'dd/MM/yyyy'))
         setDate(currentDate);
     };
 
-    const handleShow = () => {
-        setShow(!show)
-    }
+    const handleShow = () => setShow(!show)
 
     return (
         <View style={label ? styles.container : {}}>
@@ -72,7 +77,7 @@ const styles = StyleSheet.create({
     },
     btnWithLabel: {
         marginTop: 10,
-    }, 
+    },
     label: {
         fontSize: 16,
         fontFamily: fonts.bold,

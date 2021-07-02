@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
     Text
 } from 'react-native';
 
+import _ from 'lodash';
 import { Picker } from '@react-native-picker/picker';
 import { colors, fonts } from '../commounStyles';
-
+import { useFocusEffect } from '@react-navigation/native';
 
 const PickerComponent = ({
     data,
     returnItem,
     label,
     showLabel,
-    field
+    field,
+    initialValue,
+    fieldFilter,
 }) => {
+    useEffect(() => {
+        if (initialValue) {
+            findOBJ()
+        }
+    }, [])
     const [selectedItem, setSelectedItem] = useState();
+
+    const findOBJ = () => {
+        const item = _.find(data, { [fieldFilter]: initialValue })
+        console.log('INITIAL VALUE: ', item);
+        setSelectedItem(item)
+    }
+
     const handleChange = (item, index) => {
         returnItem(item)
         setSelectedItem(item)
@@ -30,9 +45,9 @@ const PickerComponent = ({
                 </Text>
             }
             <Picker
+
                 selectedValue={selectedItem}
                 onValueChange={handleChange}
-                // label='Aeroporto'
                 mode='dropdown'
                 fontFamily={fonts.regular}>
                 {[{ [field]: showLabel ? 'Selecionar' : label }, ...data].map(item => {

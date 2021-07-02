@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import {
-    Input,
-    Button
-} from 'react-native-elements';
-
+//LB
+import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Toast from 'react-native-toast-message';
+
+//CP
 import apiService from '../../api/api'
 
 const defaultObject = {
@@ -15,24 +15,38 @@ const defaultObject = {
     companhia: '',
 }
 
-const TipoAeronave = ({ getFields, isToUpdate, api_name, editObj }) => {
+const TipoAeronave = ({ getFields, isToUpdate, api_name, editObj, navigation }) => {
     const [loading, setLoading] = useState(false)
+    const [originalState, setOriginalState] = useState(editObj);
     const [info, setInfo] = useState(editObj ? editObj : defaultObject)
 
     const handleRegister = async () => {
-        setLoading(true)
-        await apiService.post(`/${api_name}`, info)
-            .then((response) => console.log(response))
+        await apiService.post(api_name, info)
+            .then(callToastMessage)
+            .then(goBack)
             .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
+    }
+
+    const goBack = () => {
+        navigation.goBack()
     }
 
     const handleUpdate = async () => {
-        await apiService.put(`/${api_name}`, info)
+        await apiService.put(api_name, info)
             .then((response) => console.log(response))
             .catch((error) => console.error(error))
-            .finally(() => setLoading(false))
     }
+
+    const callToastMessage = () => {
+        Toast.show({
+            type: 'success',
+            text1: 'Sucesso',
+            text2: `Tipo de Aeronave criado com sucesso!`,
+            visibilityTime: 2000,
+            autoHide: true,
+        });
+    }
+
 
     return (
         <View style={styles.container}>
@@ -60,7 +74,7 @@ const TipoAeronave = ({ getFields, isToUpdate, api_name, editObj }) => {
             <Button
                 buttonStyle={{ height: 48, borderRadius: 8 }}
                 iconRight
-                onPress={handleRegister}
+                onPress={editObj ? handleUpdate : handleRegister}
                 loading={loading}
                 icon={
                     <Icon
@@ -70,7 +84,7 @@ const TipoAeronave = ({ getFields, isToUpdate, api_name, editObj }) => {
                         style={{ marginLeft: 10 }}
                     />
                 }
-                title="Registrar"
+                title={editObj ? "Atualizar  " : "Registrar  "}
             />
         </View>
     )
@@ -79,7 +93,8 @@ const TipoAeronave = ({ getFields, isToUpdate, api_name, editObj }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: 15
     }
 });
 
